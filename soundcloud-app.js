@@ -90,7 +90,20 @@ function persist(){
 }
 try{persist()}catch(e){console.warn("SoundCloud migration storage:",e)}
 let tab="shuffle",activeSource=null,isImporting=false,stopImport=false;
-const accountCount=()=>sources.filter(s=>sourceTracks(s).some(t=>!historySet().has(String(t.id)))).length;
+function accountGroups(){
+ const groups=new Map();
+ for(const source of sources){
+  let account;
+  try{account=new URL(source.url).pathname.split("/").filter(Boolean)[0]}catch{continue}
+  const id=n(account);
+  if(!id)continue;
+  if(!groups.has(id))groups.set(id,{url:"https://soundcloud.com/"+account,label:account.replace(/[-_]+/g," "),items:new Map()});
+  const group=groups.get(id);
+  for(const track of sourceTracks(source))group.items.set(String(track.id),track)
+ }
+ return [...groups.values()]
+}
+const accountCount=()=>accountGroups().filter(g=>[...g.items.values()].some(t=>!historySet().has(String(t.id)))).length;
 function state(text){$("scMessage").textContent=text}
 function setPanel(next){
  tab=next;
@@ -122,16 +135,22 @@ function play(track,source){
 }
 function chooseSong(){
  const listened=historySet();
- const available=sources.filter(s=>sourceTracks(s).some(t=>!listened.has(String(t.id))));
- let options=available.map(source=>({source,tracks:sourceTracks(source).filter(t=>!listened.has(String(t.id)))}));
+ const options=accountGroups().map(group=>({
+   source:{url:group.url,label:group.label},
+   tracks:[...group.items.values()].filter(t=>!listened.has(String(t.id)))
+ })).filter(x=>x.tracks.length);
+ // Pre-existing SoundCloud songs without a known upload account remain discoverable.
  const orphan=orphanTracks().filter(t=>!listened.has(String(t.id)));
  if(orphan.length)options.push({source:null,tracks:orphan});
- if(!options.length){state(library.length?"Alle importierten SoundCloud-Songs wurden schon gezogen. Importiere weitere Quellen.":"Noch keine SoundCloud-Songs vorhanden. Öffne Accounts und importiere deine Quellen.");return false}
- // Pick an ACCOUNT uniformly, then choose a random unplayed song within that account.
+ if(!options.length){
+   state(library.length?"Alle importierten SoundCloud-Songs wurden schon gezogen. Importiere weitere Quellen.":"Noch keine SoundCloud-Songs vorhanden. Öffne Accounts und importiere deine Quellen.");
+   return false
+ }
+ // Accounts are equally weighted, regardless of their number of playlists or tracks.
  const recent=new Set(history.slice(-7).map(t=>t.sourceUrl||"_old"));
- const noRepeat=options.filter(opt=>!recent.has(opt.source?.url||"_old"));
- if(noRepeat.length)options=noRepeat;
- const choice=sample(options);
+ let pool=options.filter(x=>!recent.has(x.source?.url||"_old"));
+ if(!pool.length)pool=options;
+ const choice=sample(pool);
  play(sample(choice.tracks),choice.source);
  return true
 }
