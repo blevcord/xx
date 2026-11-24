@@ -32,7 +32,7 @@ function ready(name){return unplayed(name).length>0||!!profiles[normal(name)]}
 function moreInfo(){
   const total=aNames.length,mapped=aNames.filter(n=>profiles[normal(n)]).length,songs=aNames.filter(n=>trackKeys(n).length).length,untested=total-mapped;
   E("scArtistSummary").textContent=total.toLocaleString("de-CH")+" Artists · "+mapped+" Profil-Links · "+songs+" mit gespeicherten Tracks · "+untested+" ohne Profil-Link";
-  E("scArtistCount").textContent=total.toLocaleString("de-CH")+" Artists";
+  E("scArtists").textContent=total.toLocaleString("de-CH")+" Artists";
 }
 function addMany(raw){
   const names=uniqueNames(raw.split(/\r?\n/).flatMap(line=>line.split(";")));
@@ -142,7 +142,7 @@ function downloadFile(name,data){
  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
  const u=URL.createObjectURL(blob),a=document.createElement("a");a.download=name;a.href=u;a.click();setTimeout(()=>URL.revokeObjectURL(u),1800)
 }
-E("scBulkAdd").onclick=()=>{const res=addMany(E("scBulkNames").value);display(res.added+" Artists hinzugefügt; "+res.skipped+" bereits vorhanden.");if(res.added)E("scBulkNames").value=""};
+E("scBulkAdd").onclick=()=>{const res=addMany(E("scBulkNamesArea").value);display(res.added+" Artists hinzugefügt; "+res.skipped+" bereits vorhanden.");if(res.added)E("scBulkNamesArea").value=""};
 E("scArtistSearch").oninput=()=>{limit=55;renderArtists()};
 E("scArtistState").onchange=()=>{limit=55;renderArtists()};
 E("scArtistMore").onclick=()=>{limit+=55;renderArtists()};
