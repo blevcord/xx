@@ -86,6 +86,16 @@ if(scResearchPending){
    for(const url of row.urls)addSource(url)
  }
 }
+const scResearchV4Key="scResearchVerifiedNov24V4";
+let scResearchV4Pending=false;
+try{scResearchV4Pending=localStorage.getItem(scResearchV4Key)!=="done"}catch(e){console.warn("SoundCloud V4 marker unavailable",e)}
+if(scResearchV4Pending){
+ const verified=Array.isArray(window.SC_VERIFIED_ARCHIVE_SOURCES)?window.SC_VERIFIED_ARCHIVE_SOURCES:[];
+ for(const row of verified){
+   if(row?.researchBatch!=="2026-11-24-verified-direct-v4"||!Array.isArray(row.urls))continue;
+   for(const url of row.urls)addSource(url)
+ }
+}
 if(library.length&&!sources.some(s=>s.url===null)){/* unsourced library represented by a virtual pool below */}
 const libraryById=()=>new Map(library.map(t=>[String(t.id),t]));
 const historySet=()=>new Set(history.map(t=>String(t.id)));
@@ -100,7 +110,7 @@ function orphanTracks(){
 function persist(){
  save(K.sources,sources);save(K.library,library);save(K.history,history)
 }
-try{persist();if(scResearchPending)localStorage.setItem(scResearchKey,"done")}catch(e){console.warn("SoundCloud migration storage:",e)}
+try{persist();if(scResearchPending)localStorage.setItem(scResearchKey,"done");if(scResearchV4Pending)localStorage.setItem(scResearchV4Key,"done")}catch(e){console.warn("SoundCloud migration storage:",e)}
 let tab="shuffle",activeSource=null,isImporting=false,stopImport=false;
 function accountGroups(){
  const groups=new Map();
