@@ -26,7 +26,7 @@ function trackObject(obj){
  const artist=obj.user?.username||obj.artist||obj.publisher_metadata?.artist||"SoundCloud";
  return {id:String(obj.id||url),url,title:obj.title.slice(0,400),artist:String(artist).slice(0,160),
   ...(typeof obj.artwork_url==="string"?{image:obj.artwork_url}:{}),...(Number.isFinite(obj.drawnAt)?{drawnAt:obj.drawnAt}:{}),
-  ...(typeof obj.sourceUrl==="string"?{sourceUrl:obj.sourceUrl}:{})}
+  ...(typeof obj.sourceUrl==="string"?{sourceUrl:obj.sourceUrl}:{}),...(typeof obj.sourceLabel==="string"?{sourceLabel:obj.sourceLabel}:{})}
 }
 function srcLabel(url){
  const parts=new URL(url).pathname.split("/").filter(Boolean);
@@ -66,8 +66,8 @@ function mergeLegacy(){
  // Prior track imports lack reliable account attribution; retain them in a separate source pool.
  return added
 }
-mergeLegacy();
-let changed=false;
+if(!Array.isArray(oldSources))mergeLegacy();
+
 sources=sources.filter(s=>s&&typeof s==="object"&&soundcloudUrl(s.url||"")).map(s=>({
  ...newSource(soundcloudUrl(s.url),typeof s.label==="string"&&s.label.trim()?s.label.trim():""),
  trackIds:Array.isArray(s.trackIds)?[...new Set(s.trackIds.filter(x=>typeof x==="string"))]:[],
