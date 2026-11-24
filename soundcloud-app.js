@@ -347,8 +347,32 @@ function bind(){
  $("scSearchSoundCloud").onclick=()=>{const q=$("scSoundcloudSearch").value.trim();if(q)window.open("https://soundcloud.com/search?q="+encodeURIComponent(q),"_blank","noopener")};
  $("scExport").onclick=downloadBackup;
  $("scRestore").onchange=async()=>{const file=$("scRestore").files?.[0];if(!file)return;try{const result=await restoreBackup(file);state(result.added+" Songs und "+result.recovered+" Verlaufseinträge ergänzt; keine vorhandenen Daten ersetzt.")}catch(e){state("Import fehlgeschlagen: "+e.message)}finally{$("scRestore").value=""}};
- $("scReset").onclick=()=>{if(!confirm("Wirklich nur den SoundCloud-Verlauf löschen? Bereits gehörte Songs können danach erneut kommen."))return;history=[];save(K.history,history);updateKPIs();renderHistory();state("SoundCloud-Verlauf zurückgesetzt. Spotify ist unverändert.")};
- $("scHistoryReset").onclick=()=>$("scReset").click();
+ const clearSoundCloudHistory=()=>{
+  const message=$("scHistoryNotice");
+  if(!history.length){
+    message.textContent="Der SoundCloud-Verlauf ist bereits leer.";
+    state("Der SoundCloud-Verlauf ist bereits leer.");
+    return;
+  }
+  if(!window.confirm("Alle "+history.length+" SoundCloud-Verlaufseinträge wirklich löschen? Die importierten Songs, Accounts und der Spotify-Verlauf bleiben erhalten."))return;
+  const previous=history;
+  try{
+    save(K.history,[]);
+    history=[];
+    updateKPIs();
+    renderHistory();
+    renderLibrary();
+    renderStats();
+    message.textContent=previous.length+" SoundCloud-Verlaufseinträge gelöscht. Du kannst die Songs wieder ziehen.";
+    state("SoundCloud-Verlauf gelöscht · "+previous.length+" Einträge. Spotify ist unverändert.");
+  }catch(error){
+    history=previous;
+    message.textContent="Verlauf konnte nicht gelöscht werden: "+error.message;
+    state("SoundCloud-Verlauf nicht gelöscht: "+error.message);
+  }
+ };
+ $("scReset").onclick=clearSoundCloudHistory;
+ $("scHistoryReset").onclick=clearSoundCloudHistory;
  $("scAutoCheck").onclick=async()=>{if(!sources.length){setPanel("accounts");state("Füge zunächst SoundCloud-Quellen hinzu.");return}if(!chooseSong()){setPanel("accounts");await batchImport();setPanel("shuffle");chooseSong()}};
 }
 bind();updateKPIs();renderSources();renderStats();setPanel("shuffle");
