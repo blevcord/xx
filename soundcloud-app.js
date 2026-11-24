@@ -74,6 +74,18 @@ sources=sources.filter(s=>s&&typeof s==="object"&&soundcloudUrl(s.url||"")).map(
  status:["ready","failed","new"].includes(s.status)?s.status:"new",
  checkedAt:Number(s.checkedAt)||0,error:typeof s.error==="string"?s.error:""
 }));
+/* Add the freshly researched SoundCloud sources to existing installations once,
+   preserving manually added/removed sources and every track and history record. */
+const scResearchKey="scResearchVerifiedNov24V3";
+let scResearchPending=false;
+try{scResearchPending=localStorage.getItem(scResearchKey)!=="done"}catch(e){console.warn("SoundCloud import marker unavailable",e)}
+if(scResearchPending){
+ const verified=Array.isArray(window.SC_VERIFIED_ARCHIVE_SOURCES)?window.SC_VERIFIED_ARCHIVE_SOURCES:[];
+ for(const row of verified){
+   if(row?.researchBatch!=="2026-11-24-verified-direct"||!Array.isArray(row.urls))continue;
+   for(const url of row.urls)addSource(url)
+ }
+}
 if(library.length&&!sources.some(s=>s.url===null)){/* unsourced library represented by a virtual pool below */}
 const libraryById=()=>new Map(library.map(t=>[String(t.id),t]));
 const historySet=()=>new Set(history.map(t=>String(t.id)));
@@ -88,7 +100,7 @@ function orphanTracks(){
 function persist(){
  save(K.sources,sources);save(K.library,library);save(K.history,history)
 }
-try{persist()}catch(e){console.warn("SoundCloud migration storage:",e)}
+try{persist();if(scResearchPending)localStorage.setItem(scResearchKey,"done")}catch(e){console.warn("SoundCloud migration storage:",e)}
 let tab="shuffle",activeSource=null,isImporting=false,stopImport=false;
 function accountGroups(){
  const groups=new Map();
