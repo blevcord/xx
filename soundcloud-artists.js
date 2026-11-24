@@ -50,6 +50,26 @@ function sourceList(value){
 }
 function sourcesFor(name){return sourceList(profiles[normal(name)])}
 for(const [k,value] of Object.entries(profiles))profiles[k]=sourceList(value);
+const sourcedCatalog=Array.isArray(window.SC_VERIFIED_ARCHIVE_SOURCES)?window.SC_VERIFIED_ARCHIVE_SOURCES.filter(x=>x&&typeof x.artist==="string"&&Array.isArray(x.urls)):[];
+function mergeResearchSources(){
+  let newLinks=0,addedArtists=0;
+  const present=new Set(aNames.map(normal));
+  for(const item of sourcedCatalog){
+    const artist=item.artist.trim(),k=normal(artist);
+    if(!k)continue;
+    if(!present.has(k)){aNames.push(artist);present.add(k);addedArtists++}
+    const existing=sourceList(profiles[k]),combined=new Set(existing);
+    for(const url of sourceList(item.urls)){if(combined.size>=30)break;if(!combined.has(url)){combined.add(url);newLinks++}}
+    profiles[k]=[...combined];
+  }
+  if(addedArtists||newLinks)persist();
+  return {newLinks,addedArtists};
+}
+if(!localStorage.getItem("scResearchedSourcesAppliedNov24v2")){
+  mergeResearchSources();
+  localStorage.setItem("scResearchedSourcesAppliedNov24v2","1");
+}
+
 function display(s){E("scArtistMessage").textContent=s}
 function trackKeys(name){const known=new Set(links[normal(name)]||[]);const k=normal(name);return scLibrary.filter(t=>known.has(scKey(t))||normal(t.artist)===k||normal(t.source)===k)}
 function unplayed(name){return trackKeys(name).filter(t=>!scIsPlayed(t))}
@@ -98,8 +118,8 @@ function renderArtists(){
   moreInfo();
 }
 
-async function loadProfile(name, single=false){
-  const k=normal(name),all=sourcesFor(name);
+async function loadProfile(name, single=false, overrideURLs=null){
+  const k=normal(name),all=overrideURLs?sourceList(overrideURLs):sourcesFor(name);
   if(!all.length)throw Error("Keine Quellen für "+name+" hinterlegt.");
   if(importing)throw Error("Es läuft bereits ein Import.");
   importing=true;
@@ -241,5 +261,58 @@ E("scRestore").onchange=async()=>{
  }catch(e){display("Backup-Import fehlgeschlagen: "+e.message)}
  finally{input.value=""}
 };
+
+/* Verified archive source discovery — explicit one-click bulk collection, no hidden Spotify changes. */
+let sourcedRunning=false,sourcedStop=false;
+function sourcedStatus(message){E("scSourcedStatus").textContent=message}
+function sourcedDraw(){
+  const host=E("scSourcedRows");host.replaceChildren();
+  let count=sourcedCatalog.reduce((n,x)=>n+sourceList(x.urls).length,0);
+  E("scSourcedSummary").textContent=sourcedCatalog.length+" Artists · "+count+" recherchierte SoundCloud-Quellen (nicht alle bereits als Tracks importiert)";
+  for(const item of sourcedCatalog){
+    const box=document.createElement("div");box.className="sc-source-row";
+    const main=document.createElement("div");
+    const title=document.createElement("strong");title.textContent=item.artist;
+    const note=document.createElement("small");note.textContent=String(item.note||"Archiv-/Upload-Quelle");
+    main.append(title,note);
+    const urlList=document.createElement("div");urlList.className="sc-source-links";
+    for(const url of sourceList(item.urls)){
+      let a=document.createElement("a");a.href=url;a.target="_blank";a.rel="noopener noreferrer";a.textContent=url.replace("https://soundcloud.com/","");urlList.append(a)
+    }
+    const n=trackKeys(item.artist).length;
+    const countText=document.createElement("small");countText.textContent=n+" gespeicherte Titel · "+sourcesFor(item.artist).length+" Links hinterlegt";
+    box.append(main,urlList,countText);host.append(box)
+  }
+}
+E("scSourcedMerge").onclick=()=>{
+  const res=mergeResearchSources();
+  sourcedStatus(res.newLinks+" neue Links hinterlegt, "+res.addedArtists+" Artists ergänzt. Vorhandene Quellen wurden nicht gelöscht.");
+  renderArtists();sourcedDraw()
+};
+E("scSourcedImport").onclick=async()=>{
+  if(sourcedRunning||importing)return;
+  sourcedRunning=true;sourcedStop=false;
+  E("scSourcedImport").disabled=true;E("scSourcedStop").disabled=false;
+  let done=0,found=0,failed=0,songs=0;
+  try{
+    for(const item of sourcedCatalog){
+      if(sourcedStop)break;
+      sourcedStatus("Importiere "+(done+1)+"/"+sourcedCatalog.length+": "+item.artist+" … Bitte Tab geöffnet lassen.");
+      try{
+        const res=await loadProfile(item.artist,false,item.urls);
+        found+=res.success;songs+=res.added;failed+=res.failed.length;
+      }catch(e){failed++;sourcedStatus(item.artist+": "+e.message)}
+      done++;
+      sourcedDraw();
+    }
+    sourcedStatus((sourcedStop?"Gestoppt. ":"")+
+      done+" Artists geprüft · "+found+" Quellen lesbar · "+
+      songs+" neue Songs gespeichert · "+failed+" Quellen fehlgeschlagen. "+
+      "Bereits vorhandene Songs und Verläufe bleiben erhalten.");
+    renderArtists();scRender()
+  }finally{E("scSourcedImport").disabled=false;E("scSourcedStop").disabled=true;sourcedRunning=false}
+};
+E("scSourcedStop").onclick=()=>{sourcedStop=true;sourcedStatus("Stop wird nach dem aktuellen Artist ausgeführt. Bereits importierte Songs bleiben gespeichert.")};
+sourcedDraw();
 persist();renderArtists();
 })();
