@@ -1,4 +1,4 @@
-/* Curated public SoundCloud account, archive, track and playlist URLs. Source links were checked via SoundCloud pages or indexed public results; playback availability depends on SoundCloud. This catalog contains no tokens or personal user data. */
+/* Research-backed SoundCloud sources: public account, archive, track and playlist URLs. Playback varies by SoundCloud availability. */
 window.SC_VERIFIED_ARCHIVE_SOURCES=[
   {
     "artist": "agelast222",
@@ -609,5 +609,36 @@ window.SC_VERIFIED_ARCHIVE_SOURCES=[
     ],
     "note": "The Smiths Unofficial – Fan-Upload-Profil; keine offizielle Bandseite",
     "researchBatch": "2026-11-24-verified-direct"
+  },
+  {
+    "artist": "The Garden",
+    "urls": [
+      "https://soundcloud.com/the-garden-official",
+      "https://soundcloud.com/the-garden-official/the-nightmare",
+      "https://soundcloud.com/the-garden-official/hell-hole",
+      "https://soundcloud.com/the-garden-official/clench-to-stay-awake"
+    ],
+    "note": "Band-Account und öffentliche Tracks auf SoundCloud",
+    "researchBatch": "2026-11-24-verified-direct-v4"
+  },
+  {
+    "artist": "Duster",
+    "urls": [
+      "https://soundcloud.com/thisisduster",
+      "https://soundcloud.com/thisisduster/like-a-movie-2",
+      "https://soundcloud.com/thisisduster/quiet-eyes-2",
+      "https://soundcloud.com/thisisduster/untitled"
+    ],
+    "note": "Duster SoundCloud-Account und direkte Tracks",
+    "researchBatch": "2026-11-24-verified-direct-v4"
+  },
+  {
+    "artist": "brakence",
+    "urls": [
+      "https://soundcloud.com/brakence",
+      "https://soundcloud.com/brakence/5g"
+    ],
+    "note": "brakence-Account und direkt geprüfter Track 5g",
+    "researchBatch": "2026-11-24-verified-direct-v4"
   }
 ];
