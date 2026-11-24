@@ -1,4 +1,4 @@
-/* Research-backed SoundCloud sources. Links are found online; live widget import/playback may vary. */
+/* Research-backed SoundCloud sources: public URLs verified via indexed sources on Nov 24 2026. Public link existence does not guarantee playable in widget. */
 window.SC_VERIFIED_ARCHIVE_SOURCES=[
   {
     "artist": "agelast222",
@@ -11,7 +11,8 @@ window.SC_VERIFIED_ARCHIVE_SOURCES=[
     "artist": "bleood",
     "urls": [
       "https://soundcloud.com/antibrows",
-      "https://soundcloud.com/bleood-archive"
+      "https://soundcloud.com/bleood-archive",
+      "https://soundcloud.com/bleood-archive/showme"
     ],
     "note": "Bleood Archive; SoundCloud-Katalog und Community-Quellen"
   },
@@ -26,28 +27,33 @@ window.SC_VERIFIED_ARCHIVE_SOURCES=[
   {
     "artist": "wifiskeleton",
     "urls": [
-      "https://soundcloud.com/wifiskeleton-archive"
+      "https://soundcloud.com/wifiskeleton-archive",
+      "https://soundcloud.com/wifiskeleton-archive/keeping-secrets"
     ],
     "note": "Wifiskeleton archive"
   },
   {
     "artist": "Yungster Jack",
     "urls": [
-      "https://soundcloud.com/yungsterjackarchive"
+      "https://soundcloud.com/yungsterjackarchive",
+      "https://soundcloud.com/yungsterjackarchive/yungster-jack-pack-says-caution-prod-jetskiii-hoodwtch"
     ],
     "note": "Yungster Jack archive"
   },
   {
     "artist": "Yabujin",
     "urls": [
-      "https://soundcloud.com/yabujin_archive"
+      "https://soundcloud.com/yabujin_archive",
+      "https://soundcloud.com/yabujin_archive/yabujin-et-frjela-paark"
     ],
     "note": "Yabujin Archive"
   },
   {
     "artist": "xaviersobased",
     "urls": [
-      "https://soundcloud.com/xavier1c"
+      "https://soundcloud.com/xavier1c",
+      "https://soundcloud.com/xavier1c/analysts-prod-cha1nheld-n",
+      "https://soundcloud.com/xavier1c/sets/and-when"
     ],
     "note": "Xaviersobased archive"
   },
@@ -63,7 +69,9 @@ window.SC_VERIFIED_ARCHIVE_SOURCES=[
     "artist": "jaydes",
     "urls": [
       "https://soundcloud.com/jaydesarchive-music",
-      "https://soundcloud.com/jaydes-archived"
+      "https://soundcloud.com/jaydes-archived",
+      "https://soundcloud.com/gothtouch/sets/jaydes-rock-unreleased",
+      "https://soundcloud.com/gorkent-kent/jaydes-2020-1"
     ],
     "note": "Zwei Jaydes Archive"
   },
