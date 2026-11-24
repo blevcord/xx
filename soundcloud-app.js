@@ -348,6 +348,7 @@ function bind(){
  $("scExport").onclick=downloadBackup;
  $("scRestore").onchange=async()=>{const file=$("scRestore").files?.[0];if(!file)return;try{const result=await restoreBackup(file);state(result.added+" Songs und "+result.recovered+" Verlaufseinträge ergänzt; keine vorhandenen Daten ersetzt.")}catch(e){state("Import fehlgeschlagen: "+e.message)}finally{$("scRestore").value=""}};
  $("scReset").onclick=()=>{if(!confirm("Wirklich nur den SoundCloud-Verlauf löschen? Bereits gehörte Songs können danach erneut kommen."))return;history=[];save(K.history,history);updateKPIs();renderHistory();state("SoundCloud-Verlauf zurückgesetzt. Spotify ist unverändert.")};
+ $("scHistoryReset").onclick=()=>$("scReset").click();
  $("scAutoCheck").onclick=async()=>{if(!sources.length){setPanel("accounts");state("Füge zunächst SoundCloud-Quellen hinzu.");return}if(!chooseSong()){setPanel("accounts");await batchImport();setPanel("shuffle");chooseSong()}};
 }
 bind();updateKPIs();renderSources();renderStats();setPanel("shuffle");
